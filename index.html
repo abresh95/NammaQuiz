@@ -10,7 +10,7 @@
 
   <!-- ── Welcome Screen ── -->
   <div id="welcome">
-    <div class="logo">🗺️</div>
+    <div class="logo">🇮🇳</div>
     <h1>Know Your South India</h1>
     <p class="subtitle">
       Can you identify 20 famous South Indian celebrities by their photo?<br>
@@ -41,7 +41,6 @@
   <div id="quiz">
     <div class="quiz-header">
       <span class="q-counter" id="q-counter">Question 1 of 20</span>
-      <span class="score-badge" id="score-badge">Score: 0</span>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progress-fill"></div>
@@ -70,36 +69,7 @@
     <div class="options-grid" id="options-grid"></div>
   </div>
 
-  <!-- ── Results Screen ── -->
-  <div id="results">
-    <div class="result-emoji" id="result-emoji"></div>
-    <div class="result-rating" id="result-rating"></div>
-    <div class="result-title" id="result-title"></div>
-    <div class="result-score">
-      <span id="result-num"></span><span class="total">&thinsp;/&thinsp;20</span>
-    </div>
-    <p class="result-desc" id="result-desc"></p>
-
-    <div class="result-breakdown">
-      <div class="breakdown-row">
-        <span class="breakdown-label">Your score</span>
-        <span class="breakdown-values">
-          <span class="breakdown-correct" id="bd-correct"></span>
-          <span class="breakdown-wrong" id="bd-wrong"></span>
-        </span>
-      </div>
-      <div class="threshold-marker">
-        <div class="threshold-line"></div>
-        <div class="threshold-text">Pass (15)</div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="bar-fill"></div>
-      </div>
-    </div>
-
-    <button class="btn-primary" onclick="startQuiz()">Play Again</button>
-  </div>
-
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

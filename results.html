@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NammaQuiz — Results</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .answer-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      border-left-width: 4px;
+    }
+
+    .answer-row.correct { border-left-color: var(--correct); }
+    .answer-row.wrong   { border-left-color: var(--wrong); }
+
+    .answer-num {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 700;
+      min-width: 20px;
+      padding-top: 2px;
+    }
+
+    .answer-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      object-position: center top;
+      flex-shrink: 0;
+      background: var(--card2);
+    }
+
+    .answer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      justify-content: center;
+    }
+
+    .answer-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .answer-state {
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .answer-row.correct .answer-state { color: var(--correct); }
+    .answer-row.wrong   .answer-state { color: var(--wrong); }
+
+    #answer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .share-btn {
+      background: linear-gradient(135deg, #00b4d8, #0096c7);
+      border: none;
+      color: white;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0, 180, 216, 0.4);
+      letter-spacing: 0.02em;
+      transition: box-shadow 0.2s;
+    }
+
+    .share-btn:hover {
+      box-shadow: 0 8px 28px rgba(0, 180, 216, 0.55);
+    }
+
+    .share-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div id="results" style="display:block; max-width: 480px; width: 100%; text-align: center;">
+    <div class="result-emoji" id="result-emoji"></div>
+    <div class="result-rating" id="result-rating"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-score">
+      <span id="result-num"></span><span class="total">&thinsp;/&thinsp;20</span>
+    </div>
+    <p class="result-desc" id="result-desc"></p>
+
+    <div class="result-breakdown">
+      <div class="breakdown-row">
+        <span class="breakdown-label">Your score</span>
+        <span class="breakdown-values">
+          <span class="breakdown-correct" id="bd-correct"></span>
+          <span class="breakdown-wrong" id="bd-wrong"></span>
+        </span>
+      </div>
+      <div class="threshold-marker">
+        <div class="threshold-line"></div>
+        <div class="threshold-text">Pass (15)</div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="share-btn" onclick="shareResults()">Share Results</button>
+      <span class="share-hint" id="share-hint"></span>
+      <a href="index.html"><button class="btn-primary">Play Again</button></a>
+    </div>
+
+    <div id="answer-list"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const hash = window.location.hash.slice(1);
+
+    if (!hash || hash.length !== 8) {
+      document.getElementById('result-title').textContent = 'No results found.';
+      document.getElementById('result-desc').textContent = 'Please play the quiz first.';
+    } else {
+      const chosenIndices = decodeAnswers(hash);
+      const answers = CELEBRITIES.map((celeb, i) => {
+        const chosen = STATES[chosenIndices[i]];
+        const isCorrect = chosen === celeb.state;
+        return { celeb, correct: celeb.state, chosen, isCorrect };
+      });
+
+      const score = answers.filter(a => a.isCorrect).length;
+      const passed = score >= 15;
+      const wrong = 20 - score;
+      const pct = (score / 20) * 100;
+
+      document.getElementById('result-emoji').textContent  = passed ? '🏆' : '📚';
+      document.getElementById('result-rating').textContent = passed ? 'GOOD' : 'POOR';
+      document.getElementById('result-rating').className   = `result-rating ${passed ? 'good' : 'poor'}`;
+      document.getElementById('result-title').textContent  = passed ? 'You really know South India!' : 'Time to brush up!';
+      document.getElementById('result-title').className    = `result-title ${passed ? 'good' : 'poor'}`;
+      document.getElementById('result-num').textContent    = score;
+      document.getElementById('result-desc').textContent   = passed
+        ? `Excellent! You correctly identified ${score} out of 20 South Indian celebrities — you clearly know your Tamil Nadu, Kerala, Karnataka, and Andhra/Telangana icons!`
+        : `You got ${score} out of 20. You need at least 15 to pass. Keep exploring South Indian cinema, music & sports, then give it another shot!`;
+
+      document.getElementById('bd-correct').textContent = `✓ ${score} correct`;
+      document.getElementById('bd-wrong').textContent   = `✗ ${wrong} wrong`;
+
+      const fill = document.getElementById('bar-fill');
+      fill.className = `bar-fill ${passed ? 'good' : 'poor'}`;
+      fill.style.width = '0%';
+      setTimeout(() => { fill.style.width = `${pct}%`; }, 120);
+
+      const list = document.getElementById('answer-list');
+      answers.forEach((a, i) => {
+        const row = document.createElement('div');
+        row.className = `answer-row ${a.isCorrect ? 'correct' : 'wrong'}`;
+        row.innerHTML = `
+          <span class="answer-num">${i + 1}</span>
+          <img class="answer-img" src="${a.celeb.img}" alt="${a.celeb.name}" onerror="this.style.display='none'">
+          <div class="answer-info">
+            <span class="answer-name">${a.celeb.name}</span>
+            <span class="answer-state">${a.isCorrect
+              ? '✓ ' + a.correct
+              : '✗ You said: ' + a.chosen + '<br>Correct: ' + a.correct
+            }</span>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function shareResults() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          document.getElementById('share-hint').textContent = 'Link copied!';
+          setTimeout(() => { document.getElementById('share-hint').textContent = ''; }, 2500);
+        });
+      } else {
+        prompt('Copy this link:', url);
+      }
+    }
+  </script>
+</body>
+</html>
