@@ -27,9 +27,8 @@ function pickQuestions() {
 }
 
 function show(id) {
-  ['welcome', 'quiz'].forEach(s => {
-    document.getElementById(s).style.display = (s === id) ? 'block' : 'none';
-  });
+  document.getElementById('welcome').style.display = id === 'welcome' ? 'block' : 'none';
+  document.getElementById('quiz').style.display    = id === 'quiz'    ? 'flex'  : 'none';
 }
 
 // ── Quiz Logic ──
@@ -113,5 +112,5 @@ function submitQuiz() {
     const celebIdx = CELEBRITIES.findIndex(c => c.name === questions[i].name);
     return ((celebIdx << 2) | chosenIdx).toString(16).padStart(2, '0');
   }).join('');
-  window.location.href = `results.html#${hex}`;
+  window.location.href = `results/#${hex}`;
 }
