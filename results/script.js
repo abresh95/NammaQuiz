@@ -36,6 +36,7 @@ if (!hash || hash.length < 2 || hash.length % 2 !== 0) {
 
   document.getElementById('bd-correct').textContent = `✓ ${score} correct`;
   document.getElementById('bd-wrong').textContent   = `✗ ${wrong} wrong`;
+  document.getElementById('threshold-text').textContent = `Pass (${passThreshold})`;
 
   const fill = document.getElementById('bar-fill');
   fill.className = `bar-fill ${passed ? 'good' : 'poor'}`;

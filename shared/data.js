@@ -45,5 +45,7 @@ const CELEBRITY_POOLS = {
   ],
 };
 
-// Flat list for results page lookup (encode/decode)
-const CELEBRITIES = Object.values(CELEBRITY_POOLS).flat();
+// Flat list with state injected for results page lookup
+const CELEBRITIES = Object.entries(CELEBRITY_POOLS).flatMap(([state, pool]) =>
+  pool.map(c => ({ ...c, state }))
+);

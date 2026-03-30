@@ -52,6 +52,7 @@ function renderQuestion() {
   document.getElementById('q-tag').textContent = `Q${currentQ + 1}`;
   document.getElementById('progress-fill').style.width = `${(currentQ / totalQuestions) * 100}%`;
   document.getElementById('back-btn').disabled = currentQ === 0;
+  document.getElementById('fwd-btn').disabled = answers[currentQ] === null || currentQ === totalQuestions - 1;
 
   const img = document.getElementById('celeb-img');
   const ph  = document.getElementById('celeb-placeholder');
@@ -95,11 +96,21 @@ function goBack() {
   renderQuestion();
 }
 
+function goForward() {
+  if (answers[currentQ] === null) return;
+  currentQ++;
+  if (currentQ < totalQuestions) {
+    renderQuestion();
+  } else {
+    submitQuiz();
+  }
+}
+
 function submitQuiz() {
   score = answers.filter((chosenIdx, i) => STATES[chosenIdx] === questions[i].state).length;
 
   const hex = answers.map((chosenIdx, i) => {
-    const celebIdx = CELEBRITIES.indexOf(questions[i]);
+    const celebIdx = CELEBRITIES.findIndex(c => c.name === questions[i].name);
     return ((celebIdx << 2) | chosenIdx).toString(16).padStart(2, '0');
   }).join('');
   window.location.href = `results.html#${hex}`;
