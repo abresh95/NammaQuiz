@@ -1,9 +1,12 @@
+const PICK_PER_STATE = 3;
+
 // ── State ──
 let questions = [];
+let totalQuestions = 0;
 let currentQ = 0;
 let score = 0;
 let answered = false;
-let answers = []; // { celebIdx, chosenIdx }
+let answers = []; // sparse array of chosenIdx per question index
 
 // ── Helpers ──
 function shuffle(arr) {
@@ -15,6 +18,14 @@ function shuffle(arr) {
   return a;
 }
 
+function pickQuestions() {
+  const picked = STATES.flatMap(state => {
+    const pool = CELEBRITY_POOLS[state];
+    return shuffle(pool).slice(0, Math.min(PICK_PER_STATE, pool.length));
+  });
+  return shuffle(picked);
+}
+
 function show(id) {
   ['welcome', 'quiz'].forEach(s => {
     document.getElementById(s).style.display = (s === id) ? 'block' : 'none';
@@ -23,65 +34,73 @@ function show(id) {
 
 // ── Quiz Logic ──
 function startQuiz() {
-  questions = shuffle(CELEBRITIES);
+  questions = pickQuestions();
+  totalQuestions = questions.length;
   currentQ = 0;
   score = 0;
   answered = false;
-  answers = [];
+  answers = new Array(totalQuestions).fill(null);
   show('quiz');
   renderQuestion();
 }
 
 function renderQuestion() {
   const q = questions[currentQ];
-  answered = false;
+  const previousAnswer = answers[currentQ];
 
-  // Header
-  document.getElementById('q-counter').textContent = `Question ${currentQ + 1} of 20`;
+  document.getElementById('q-counter').textContent = `Question ${currentQ + 1} of ${totalQuestions}`;
   document.getElementById('q-tag').textContent = `Q${currentQ + 1}`;
-  document.getElementById('progress-fill').style.width = `${(currentQ / 20) * 100}%`;
+  document.getElementById('progress-fill').style.width = `${(currentQ / totalQuestions) * 100}%`;
+  document.getElementById('back-btn').disabled = currentQ === 0;
 
-  // Photo
   const img = document.getElementById('celeb-img');
   const ph  = document.getElementById('celeb-placeholder');
   img.style.display = 'block';
   ph.style.display  = 'none';
   img.src = q.img;
 
-  // Info
   document.getElementById('celeb-name').textContent = q.name;
   document.getElementById('celeb-hint').textContent = q.hint;
 
-  // Options: always all 4 states, shuffled
   const grid = document.getElementById('options-grid');
   grid.innerHTML = '';
   shuffle(STATES).forEach(state => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.textContent = state;
-    btn.onclick = () => handleAnswer(btn, state, q.state);
+    // Highlight previously selected answer
+    if (previousAnswer !== null && STATES.indexOf(state) === previousAnswer) {
+      btn.classList.add('selected');
+    }
+    btn.onclick = () => handleAnswer(state);
     grid.appendChild(btn);
   });
 }
 
-function handleAnswer(clickedBtn, chosen, correct) {
-  if (answered) return;
-  answered = true;
-
-  const isCorrect = chosen === correct;
-  if (isCorrect) score++;
-
+function handleAnswer(chosen) {
   const chosenIdx = STATES.indexOf(chosen);
-  answers.push({ celeb: questions[currentQ], chosenIdx });
+  answers[currentQ] = chosenIdx;
+
   currentQ++;
-  if (currentQ < 20) {
+  if (currentQ < totalQuestions) {
     renderQuestion();
   } else {
-    const chosenIndices = CELEBRITIES.map(celeb => {
-      const answer = answers.find(a => a.celeb === celeb);
-      return answer ? answer.chosenIdx : 0;
-    });
-    window.location.href = `results.html#${encodeAnswers(chosenIndices)}`;
+    submitQuiz();
   }
 }
 
+function goBack() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQuestion();
+}
+
+function submitQuiz() {
+  score = answers.filter((chosenIdx, i) => STATES[chosenIdx] === questions[i].state).length;
+
+  const hex = answers.map((chosenIdx, i) => {
+    const celebIdx = CELEBRITIES.indexOf(questions[i]);
+    return ((celebIdx << 2) | chosenIdx).toString(16).padStart(2, '0');
+  }).join('');
+  window.location.href = `results.html#${hex}`;
+}

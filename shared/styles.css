@@ -281,6 +281,33 @@ h1 {
   transition: opacity 0.2s;
 }
 
+.quiz-footer {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 12px;
+}
+
+.back-btn {
+  background: rgba(0, 180, 216, 0.12);
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.back-btn:hover:not(:disabled) { background: rgba(0, 180, 216, 0.25); }
+.back-btn:disabled { opacity: 0.2; cursor: default; }
+
+.option-btn.selected {
+  border-color: var(--teal);
+  background: rgba(0, 180, 216, 0.12);
+  color: var(--teal);
+}
+
 .options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

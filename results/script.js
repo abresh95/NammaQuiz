@@ -1,20 +1,27 @@
 const hash = window.location.hash.slice(1);
 
-if (!hash || hash.length !== 8) {
+if (!hash || hash.length < 2 || hash.length % 2 !== 0) {
   document.getElementById('result-title').textContent = 'No results found.';
   document.getElementById('result-desc').textContent = 'Please play the quiz first.';
 } else {
-  const chosenIndices = decodeAnswers(hash);
-  const answers = CELEBRITIES.map((celeb, i) => {
-    const chosen = STATES[chosenIndices[i]];
+  const total = hash.length / 2;
+  // Decode: each pair of hex chars = celebIdx (6 bits) + chosenIdx (2 bits)
+  const answers = [];
+  for (let i = 0; i < hash.length; i += 2) {
+    const byte = parseInt(hash.slice(i, i + 2), 16);
+    const celebIdx = byte >> 2;
+    const chosenIdx = byte & 3;
+    const celeb = CELEBRITIES[celebIdx];
+    const chosen = STATES[chosenIdx];
     const isCorrect = chosen === celeb.state;
-    return { celeb, correct: celeb.state, chosen, isCorrect };
-  });
+    answers.push({ celeb, correct: celeb.state, chosen, isCorrect });
+  }
 
   const score = answers.filter(a => a.isCorrect).length;
-  const passed = score >= 15;
-  const wrong = 20 - score;
-  const pct = (score / 20) * 100;
+  const passThreshold = Math.ceil(total * 0.75);
+  const passed = score >= passThreshold;
+  const wrong = total - score;
+  const pct = (score / total) * 100;
 
   document.getElementById('result-emoji').textContent  = passed ? '🏆' : '📚';
   document.getElementById('result-rating').textContent = passed ? 'GOOD' : 'POOR';
@@ -22,9 +29,10 @@ if (!hash || hash.length !== 8) {
   document.getElementById('result-title').textContent  = passed ? 'You really know South India!' : 'Time to brush up!';
   document.getElementById('result-title').className    = `result-title ${passed ? 'good' : 'poor'}`;
   document.getElementById('result-num').textContent    = score;
+  document.getElementById('result-total').textContent  = total;
   document.getElementById('result-desc').textContent   = passed
-    ? `Excellent! You correctly identified ${score} out of 20 South Indian celebrities — you clearly know your Tamil Nadu, Kerala, Karnataka, and Andhra/Telangana icons!`
-    : `You got ${score} out of 20. You need at least 15 to pass. Keep exploring South Indian cinema, music & sports, then give it another shot!`;
+    ? `Excellent! You correctly identified ${score} out of ${total} South Indian celebrities — you clearly know your Tamil Nadu, Kerala, Karnataka, and Andhra/Telangana icons!`
+    : `You got ${score} out of ${total}. You need at least ${passThreshold} to pass. Keep exploring South Indian cinema, music & sports, then give it another shot!`;
 
   document.getElementById('bd-correct').textContent = `✓ ${score} correct`;
   document.getElementById('bd-wrong').textContent   = `✗ ${wrong} wrong`;
