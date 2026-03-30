@@ -462,15 +462,15 @@ h1 {
 
 .threshold-marker {
   position: relative;
-  height: 0;
+  height: 16px;
 }
 
 .threshold-line {
   position: absolute;
   left: 75%;
-  top: -10px;
+  top: 0;
   width: 2px;
-  height: 10px;
+  height: 8px;
   background: rgba(255,255,255,0.25);
   border-radius: 2px;
 }
@@ -478,7 +478,7 @@ h1 {
 .threshold-text {
   position: absolute;
   left: 75%;
-  top: -22px;
+  top: 8px;
   transform: translateX(-50%);
   font-size: 0.62rem;
   color: rgba(255,255,255,0.3);

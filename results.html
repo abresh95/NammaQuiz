@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NammaQuiz — Results</title>
-  <link rel="stylesheet" href="shared/styles.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
     .answer-row {
       display: flex;
@@ -118,12 +118,12 @@
           <span class="breakdown-wrong" id="bd-wrong"></span>
         </span>
       </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="bar-fill"></div>
+      </div>
       <div class="threshold-marker">
         <div class="threshold-line"></div>
         <div class="threshold-text" id="threshold-text">Pass</div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="bar-fill"></div>
       </div>
     </div>
 
@@ -136,7 +136,7 @@
     <div id="answer-list"></div>
   </div>
 
-  <script src="shared/data.js"></script>
+  <script src="data/data.js"></script>
   <script src="results/script.js"></script>
 </body>
 </html>
